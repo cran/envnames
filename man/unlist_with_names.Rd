@@ -18,4 +18,3 @@ attribute contains the names of the elements of the list (unchanged, i.e. withou
 to identify them as the regular \code{unlist()} function does).
 }
 \keyword{internal}
-

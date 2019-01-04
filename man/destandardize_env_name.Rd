@@ -10,13 +10,13 @@ destandardize_env_name(env_name)
 \item{env_name}{environment name to de-standardize.}
 }
 \value{
-The name of the environment, where the global environment is represented as ".GlobalEnv" and the
-base environment is represented as "package:base".
+The name of the environment, where the global environment is represented as ".GlobalEnv", the empty
+environment as ".EmptyEnv", and the base environment as "package:base".
 }
 \description{
 This function inverts the process performed by \link{standardize_env_name} that is, it converts
-the standardized names "R_GlobalEnv" and "base" back to names that are recognized by R as actual
-environments when using function \link{as.environment}, namely to \code{".GlobalEnv"} and \code{"package:base"}.
+the standardized names "R_GlobalEnv", "R_EmptyEnv", and "base" back to names that are recognized by R as actual
+environments when using function \link{as.environment}, namely to \code{".GlobalEnv"}, \code{".EmptyEnv"},
+and \code{"package:base"}.
 }
 \keyword{internal}
-

@@ -15,10 +15,11 @@ and all packages in the \code{search()} path should be returned including their 
 user-defined environments defined inside function execution environments.}
 }
 \value{
-A data frame containing the following six columns:
+A data frame containing the following seven columns:
 \itemize{
-\item{\code{type}} type of environment ("user" for user-defined environments "system/package"
-for system or package environments, and "namespace" for namespace environments).
+\item{\code{type}} type of environment ("user" for user-defined environments,
+"function" for function execution environments, "system/package" for system or package environments,
+"namespace" for namespace environments, and "empty" for empty environments such as emptyenv()).
 \item{\code{location}} location of the environment, which is only non-\code{NA} for user-defined
 and function execution environments: 
    \itemize{
@@ -29,8 +30,7 @@ and function execution environments:
    \item for a function execution environment, the location is the function's enclosing environment, i.e. the environment
    where the function is defined.
    }
-\item{\code{locationaddress}} for function execution environments, the memory address of the \code{location}
-environment.
+\item{\code{locationaddress}} the memory address of the \code{location} environment.
 \item{\code{address}} memory address of the environment. This is the key piece of information used
 by the package to retrieve the environment name with the \code{environment_name()} function.
 For functions, this is the address of the function's execution environment.
@@ -41,7 +41,7 @@ to reach the environment).
 \item{\code{name}} name of the environment.
 }
 The \code{type} column is used to distinguish between user-defined environments, function execution
-environments, package or system environments, and namespace environments.
+environments, package or system environments, namespace environments, and empty environments.
 
 The data frame is empty if no environments are found in the given \code{envir} environment.
 
@@ -52,19 +52,22 @@ Return a data frame containing the address-name pairs of system, package, namesp
 and function execution environments in the whole workspace or within a given environment.
 }
 \details{
+The table includes the empty environment as well when the address-name pairs map is constructed
+on the whole workspace.
+
+
 The search for environments is recursive, meaning that a search is carried out for environments defined
 within other user-defined environments and, when \code{include_functions=TRUE} within function execution
 environments.
 
 The search within packages is always on \emph{exported objects} only.
 
-If \code{envir} is the global environment ,the lookup table includes all system,
-package, and namespace environments in the \code{search()} path, as well as all user-defined and function execution
-environments found in the global environment (with recursive search).
-
 If \code{envir=NULL} the lookup table includes all system, package, and namespace environments
-in the \code{search()} path, as well as all user-defined found in \emph{any} of those environments (with recursive search),
-and all function execution environments.
+in the \code{search()} path, as well as all user-defined found in \emph{any} of those environments
+(with recursive search), and all function execution environments.
+
+If \code{envir} is not \code{NULL} the lookup table includes just the user-defined and
+function execution environments found inside the given environment (with recursive search).
 }
 \examples{
 # Create example of chained environments
@@ -86,4 +89,3 @@ get_env_names(as.environment("package:stats")) # should return an empty data fra
                                                # (since the stats package does not
                                                # have any environments defined)
 }
-

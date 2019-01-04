@@ -189,17 +189,45 @@ obj_find = function(obj, envir=NULL, envmap=NULL, globalsearch=TRUE, n=0, return
   # respective information about the new environments found with this search.
 	look_for = function(obj, envmap, env_full_names, env_addresses, n, envir=NULL, include_functions=FALSE, silent=TRUE) {
 	  # First check if 'obj' is an environment because we should apply a special (uncommon) process for this case
-	  # This is especially important for any NON-user defined environments (i.e. system, package, namespace, and function execution environments)
+	  # This is important for any NON-user defined environments (i.e. system, package, namespace, and function execution environments)
 	  # for which we CANNOT check for the existence of the object through the exists(obj_name, ...) call done at the very end, because:
 	  # - either they are NOT inside other environments (this is the case of system, package, namespace environments)
 	  # - or they don't have a name (this is the case for function execution environments)
-	  # Note that for user-defined environments, we COULD use the normal procedure defined in the ELSE block...
-	  # however we can also do it this way, which should actually be faster as we can simply look for the
-	  # environment's memory address in the envmap lookup table.
-	  if (is.environment(obj)) {
+	  # Note that for user-defined environments, we MUST follow the normal procedure defined in the ELSE block,
+	  # because user-defined environments may exist in many different environments and all occurrences should be returned.
+	  # (Ref: test T13 in test-environment_name.r)
+
+	  # Now check whether obj is an environment OR get(obj) is a NAMED environment
+	  # (the first case happens when e.g. obj = globalenv() and the second case happens when e.g. obj = ".GlobalEnv"
+	  # and each of these situations depend on how the user called obj_find().
+	  # Note that in the case of get(obj) being an environment, the environment MUST be a named environment;
+	  # in fact, if it is not, it is a USER-DEFINED environment  (e.g. obj = "env1")
+	  # and in that case we should look for the user-defined environment in the traditional way, because
+	  # user-defined environments may exist in different environments (which is NOT the case for
+	  # named environments such as system/package/namespace environments, which only exist once!
+	  # Note also that the only possibility for get(obj) not being a named environment is that they
+	  # are a user-defined environment, i.e. they CANNOT be a function execution environment
+	  # because such environments do NOT have a name and therefore they will never pass the
+	  # condition is.environment(get(obj))
+	  is_environment_obj = is.environment(obj)
+	  is_objAsName_a_named_environment = try( {
+  	    is_objAsName_an_environment = is.environment(get(obj))
+  	    is_named_environment = environmentName(get(obj)) != ""
+  	    is_objAsName_an_environment && is_named_environment
+	    }, silent=TRUE)
+	  if (is_environment_obj ||
+	      (!inherits(is_objAsName_a_named_environment, "try-error") && is.logical(is_objAsName_a_named_environment) && is_objAsName_a_named_environment)) {
+	    # Create the object containing the environment that should be looked for
+	    # which depends on whether obj is the environment (e.g. when obj = globalenv())
+	    # or get(obj) is the environment (e.g. when obj = ".GlobalEnv")
+	    if (is_environment_obj) {
+	      obj_as_environment = obj
+	    } else {
+	      obj_as_environment = get(obj)
+	    }
 	    # Note that the following call should update env_full_names and env_addresses with the information
 	    # on ALL the environments where 'obj' is found (this information is then stored in the returned value)
-	    env_found_list = look_for_environment(obj, envmap, env_full_names, env_addresses)
+	    env_found_list = look_for_environment(obj_as_environment, envmap, env_full_names, env_addresses)
 	  } else {
 	    # Get the name of 'obj'
 	    # This name is retrieved in the calling environment of the function calling this function + n levels up
@@ -217,18 +245,31 @@ obj_find = function(obj, envir=NULL, envmap=NULL, globalsearch=TRUE, n=0, return
 	    # on each of these environments to see if the object exists there.
 	    i = 0
 	    nenvs = nrow(envmap)
+	    # Get the name of the envir environment if any
+	    # (this is used to give the environment where the object is found a context (as in e.g. env_of_envs$env1
+	    # instead of simply showing "env1" when envir=env_of_envs, so that we make explicit that the environment
+	    # where the object is found (env1) is inside env_of_envs.
+	    envir_name = NULL
+	    if (!is.null(envir)) {
+	      envir_name = environment_name(envir)[[1]]
+	      ## With [[1]] we get the UNNAMED version of the first element of the returned array.
+	      ## This is necessary because environment_name() may return more than one element if the memory address
+	      ## of the environment has different names (because e.g. several variables share the same memory address)
+	      ## There is NO error when the returned array is NULL.
+	    }
 	    for (address in envmap[,"address"]) {
 	      i = i + 1
 	      env_type = as.character(envmap[i,"type"])
 	      env_full_name = as.character(envmap[i,"pathname"])
+	      env_full_name_with_context = collapse_root_and_member(envir_name, env_full_name)
 
 	      # ONLY check if the object exists in the env_full_name environment if the environment
 	      # has not already been checked (repetition happens e.g. for package and namespace environments
 	      # which have the same name (e.g. both the base package and its namespace environment
 	      # are called "package:base")
-	      if (!env_full_name %in% env_full_names) {
+	      if (!env_full_name_with_context %in% env_full_names) {
 	        if (!silent)
-	          cat(i, "of", nenvs, ": Inspecting environment", env_full_name, "...\n")
+	          cat(i, "of", nenvs, ": Inspecting environment", env_full_name_with_context, "...\n")
 
 	        # Get the environment from the currently analyzed envmap entry
 	        # Need to check if the current entry corresponds to an unnamed environment (user-defined) or
@@ -249,9 +290,13 @@ obj_find = function(obj, envir=NULL, envmap=NULL, globalsearch=TRUE, n=0, return
 	          } else {
 	            env = NULL
 	          }
-	        } else {
+	        } else if (env_type %in% c("system/package", "namespace")) {
 	          # Case for named environments (mostly packages) (e.g. .GlobalEnv, package:stats, etc.)
 	          env = as.environment(env_full_name)
+	        } else if (env_type == "empty") {
+	          # This is the case when the environment is the empty environment
+	          # (which cannot contain any objects, so there is no reason to look for the object there!)
+	          env = NULL
 	        }
 
 	        # Check whether the object exists in the currently analyzed environment
@@ -259,7 +304,7 @@ obj_find = function(obj, envir=NULL, envmap=NULL, globalsearch=TRUE, n=0, return
 	        if (!inherits(env, "try-error") && !is.null(env) &&		## env could be NULL if env_type = "function" and the function's execution environment could not be retrieved
 	            !is.null(obj_name) && obj_name != "" &&        	## This is checked to avoid an error in exists() which does not accept a NULL or empty argument
 	            exists(obj_name, envir=env, inherits=FALSE)) { 	## inherits=FALSE avoids searching on the enclosing (i.e. parent) environments
-	          env_full_names = c(env_full_names, env_full_name)
+	          env_full_names = c(env_full_names, env_full_name_with_context)
 	          env_addresses = c(env_addresses, address)
 	        }
 	      }
@@ -467,7 +512,7 @@ obj_find = function(obj, envir=NULL, envmap=NULL, globalsearch=TRUE, n=0, return
 		  # exists somewhere and we would be looking for it whereas that has nothing to do with the original request!)
 		  # - however, if obj = alist$v and alist$v resolves to a variable name, say "x", then we would like to
 		  # look for the object called "x". This is done in step 4 below.
-		  obj_with_path = check_object_with_path(obj_name, envir, checkenv=TRUE)
+		  obj_with_path = check_object_with_path(obj_name, envir=envir, checkenv=TRUE)
 		  if (obj_with_path$ok && obj_with_path$env_found) {
 		    # Check if the object can be resolved in the 'envir' environment (where the search for the object
 		    # is being carried out) or in any parent environment.
@@ -511,15 +556,14 @@ obj_find = function(obj, envir=NULL, envmap=NULL, globalsearch=TRUE, n=0, return
 		    # Note that the object is evaluated in the environment n levels up from the current environment
 		    # (this is the meaning of 'n', i.e. how many levels up should 'obj' be evaluated)
 		    # or in any parent environment until it is found.
-		    # Note also that we set the warn option to -1 (i.e. remove warnings) in order to
+		    # Note also that we set the warn option to "no warning" in order to
 		    # avoid the warning message "restarting interrupted promise evaluation"
 		    # when the obj object does not exist. This happens when the program already
 		    # tried to evaluate the object unsuccessfully.
 		    # We re-establish the original warn value further down after different try() calls
 		    # have been carried out.
 		    # See more at: http://stackoverflow.com/questions/20596902/r-avoiding-restarting-interrupted-promise-evaluation-warning
-		    option_warn = options("warn")$warn
-		    options(warn=-1)
+		    set_option_warn_to_nowarning()
 		    obj_eval <- try(eval(obj, envir=parent.frame(n+1)), silent=TRUE)
 
 		    #--- Check first if obj_eval yields an error or resolves to a value but obj is still a valid object to search for 
@@ -545,13 +589,20 @@ obj_find = function(obj, envir=NULL, envmap=NULL, globalsearch=TRUE, n=0, return
 		    # Note that this does not happen if obj = v[1] in the above example (i.e. only one pair of brackets,
 		    # not two as in [[1]]), because in that case v[1] is a list and the above try(eval()) does not give an error.
 		    is_obj_eval_different_from_obj <- try(obj_eval != obj, silent=TRUE)
-		    if (is_logical(is_obj_eval_different_from_obj) &&
-  		        ## Need to first check if the result of the above comparison is a valid logical value
-  		        ## (e.g. has length > 0 or is not NA) because if obj_eval or obj are NULL or NA
-  		        ## the comparison will yield logical(0) or NA and an error will be raised.
-		        ( inherits(obj_eval, "try-error") ||
-		          inherits(is_obj_eval_different_from_obj, "try-error") ||  # If there was an error in 'obj_eval != obj' then it means that the result of the comparison is TRUE
-		          !inherits(is_obj_eval_different_from_obj, "try-error") && is_obj_eval_different_from_obj) ) {
+		    if (inherits(obj_eval, "try-error") ||
+		        inherits(is_obj_eval_different_from_obj, "try-error") ||
+		          ## If there was an error in 'obj_eval != obj' then it means that the result of the comparison is TRUE
+		          ## (this happens for instance when obj_eval is an environment and obj is a string, and this type of
+		          ## comparisons cannot be performed)
+		        !inherits(is_obj_eval_different_from_obj, "try-error") && 
+		        is_logical(is_obj_eval_different_from_obj) &&
+		            ## Before checking the truth value of the result of the above comparison
+		            ## stored in is_obj_eval_different_from_obj, we need to check whether the
+		            ## value stored is a valid logical value
+		            ## (e.g. has length > 0 or is not NA) because if obj_eval or obj are NULL or NA
+		            ## the comparison will yield logical(0) or NA and an error will be raised
+		            ## when checking for the truth value of is_obj_eval_different_from_obj.
+		        is_obj_eval_different_from_obj) {
 		      # => Assign the searched object to obj_eval
 		      # This is the case when e.g. obj = v[[1]], i.e. an element of a list
 		      # containing a name (e.g. 'x') that does not exist in the calling environment 
@@ -559,7 +610,7 @@ obj_find = function(obj, envir=NULL, envmap=NULL, globalsearch=TRUE, n=0, return
 		      # But if this is the case, we still want to search for symbol 'x'.
 		      obj_eval <- try(obj, silent=TRUE)
 		    }
-		    options(warn=option_warn)
+		    reset_option_warn()
 
 		    #--- Now process obj_eval
 		    if (!inherits(obj_eval, "try-error")) {
@@ -575,7 +626,7 @@ obj_find = function(obj, envir=NULL, envmap=NULL, globalsearch=TRUE, n=0, return
 		        env_found = look_for(obj_eval, envmap, env_full_names, env_addresses, n, envir=NULL, include_functions=include_functions, silent=silent)
 		      } else {
 		        env_found = look_for(obj_eval, envmap, env_full_names, env_addresses, n, envir=envir, include_functions=include_functions, silent=silent)
-		      }   
+		      }
 		      # Update the information about the environments where the object was found so far
 		      env_full_names = env_found$env_full_names # This may contain a SET of environments (when the object is found in several environments)
 		      env_addresses = env_found$env_addresses

@@ -11,10 +11,11 @@ is_null_or_na(x)
 }
 \value{
 boolean indicating whether the object is NULL or NA.
+FALSE is returned if the object does not exist.
 }
 \description{
-This function silently handles special cases for which is.null() and is.na() may return a warning, such as functions objects.
+This function silently handles special cases for which is.null() and is.na() may return a warning,
+such as functions objects or environments.
 (e.g. the warning "Warning message: In is.na(g) : is.na() applied to non-(list or vector) of type 'closure')"
 }
 \keyword{internal}
-

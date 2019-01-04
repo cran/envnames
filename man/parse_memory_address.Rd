@@ -22,4 +22,3 @@ Parse a string representing a memory address so that the address is returned in 
 in the 'address' column of the data frame returned by get_env_names().
 }
 \keyword{internal}
-

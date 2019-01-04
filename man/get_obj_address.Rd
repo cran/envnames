@@ -111,4 +111,3 @@ get_obj_address(alist[[1]])      # memory address of object 'x'
 get_obj_address(alist[1])        # NULL because alist[1] has a memory address
                                  # that changes every time alist[1] is referred to.
 }
-

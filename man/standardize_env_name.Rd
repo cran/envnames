@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.r
 \name{standardize_env_name}
 \alias{standardize_env_name}
-\title{Standardize the name of an environment}
+\title{Standardize the name of a named environment}
 \usage{
 standardize_env_name(env_name)
 }
@@ -10,15 +10,17 @@ standardize_env_name(env_name)
 \item{env_name}{environment name to standardize.}
 }
 \value{
-The name of the environment, where the global environment is represented as "R_GlobalEnv" and the
-base environment is shown as "base".
+Standardized name of the environment. If the environment is NOT a named
+environment and it does not contain an expression that resolves to a named environment
+it returns the input name as is. This includes strings that represent non-existing objects.
 }
 \description{
-This function standardizes the name of an environment so that environment names are consistent
-with the output of base function \link{environmentName}.
-It only has an effect when the environment is the global environment or the base environment,
-which have different ways of referring to them, namely:
-\code{globalenv()}, \code{.GlobalEnv}, \code{baseenv()}, \code{as.environment("package:base")}
+This function standardizes the name of a named environment so it is consistent
+with the output of the base function \link{environmentName}.
+For instance \code{globalenv()}, \code{.GlobalEnv} becomes \code{"R_GlobalEnv"}
+\code{emptyenv()} becomes \code{"R_EmptyEnv"}
+\code{baseenv()} or \code{as.environment("package:base")} becomes \code{"base"}.
+All other named environments such as packages and namespaces are also converted
+to the standard name used by R.
 }
 \keyword{internal}
-

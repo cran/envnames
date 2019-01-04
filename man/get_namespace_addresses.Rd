@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.r
 \name{get_namespace_addresses}
 \alias{get_namespace_addresses}
-\title{Return the memory address of namespace environments}
+\title{Return the memory address of namespace environments in the search() list}
 \usage{
 get_namespace_addresses()
 }
@@ -15,4 +15,3 @@ This function returns the memory address of all the namespace environments of th
 in the \code{search()} path.
 }
 \keyword{internal}
-

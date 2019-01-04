@@ -24,10 +24,9 @@ Clean up the list of environments matching a memory address in an environment ma
 A clean list of matched environments from \code{envmap} should either:
 \itemize{
 \item contain ONLY ONE function execution environment,
-\item contain one ore more user-defined or named environments.
+\item contain one ore more user or named environments.
 }
 If none of the above is the case, all function execution environments are removed from the list
 of matching environments, i.e. removed from the \code{indfound} array.
 }
 \keyword{internal}
-

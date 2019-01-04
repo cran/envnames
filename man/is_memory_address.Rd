@@ -17,7 +17,7 @@ Check whether an object represents a valid memory address. If the object does no
 correct type FALSE is returned, no error is raised.
 }
 \details{
-Valid memory addresses depend on the architecture. For instance for:
+Valid memory addresses depend on the architecture. For instance:
 - for Windows 32-bit systems, an 8-bit representation (since 2^32 = 16^8)
 - for Windows 64-bit systems, a 16-bit representation (since 2^64 = 16^16)
 - for Linux Debian 64-bit systems, a 12-bit representation seems to be the case...
@@ -29,4 +29,3 @@ Example of valid memory addresses for Windows 64-bit systems:
 "<environment: 0x(16-digit-code)>" (e.g. "<environment: 0x000000000974E880>")
 }
 \keyword{internal}
-

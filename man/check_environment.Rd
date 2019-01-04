@@ -9,7 +9,8 @@ check_environment(x, envir)
 \arguments{
 \item{x}{string to evaluate that may represent an environment}
 
-\item{envir}{environment where \code{x} should be evaluated.}
+\item{envir}{environment where \code{x} should be evaluated first. If it is not found there
+it still searched for in the whole workspace.}
 }
 \value{
 A list with two elements:
@@ -23,7 +24,6 @@ as "env$env1"), or NULL if no environment was found corresponding to the name gi
 }
 \description{
 The input string is checked as a valid environment name. The environment can be a named environment
-(system or package) or a user-defined environment.
+(system or package) or a user environment.
 }
 \keyword{internal}
-

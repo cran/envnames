@@ -124,4 +124,3 @@ obj_find("x", envir=env1)    # "env1" "envx" (as the search is limited to the en
 obj_find("y")                # "env1"
 obj_find(nonexistent)        # NULL (note that NO error is raised even if the object does not exist)
 }
-

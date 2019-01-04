@@ -17,4 +17,3 @@ by \code{ls(asNamespace(package_name))}, or NULL if the package does not exist.
 Get the objects defined in a given package's namespace
 }
 \keyword{internal}
-

@@ -15,4 +15,3 @@ the memory address of object \code{x} or \code{NULL} if the object does not exis
 \description{
 Call the C function address() that retrieves the memory address of an R object
 }
-

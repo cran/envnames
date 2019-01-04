@@ -4,7 +4,7 @@
 \alias{get_obj_addresses_from_obj_names}
 \title{Get the object addresses given their object names}
 \usage{
-get_obj_addresses_from_obj_names(obj_names, envir = .GlobalEnv)
+get_obj_addresses_from_obj_names(obj_names, envir = NULL)
 }
 \arguments{
 \item{obj_names}{array containing the name of the objects to retrieve.
@@ -12,9 +12,9 @@ They can be given as full path names (e.g. "env1$x") and they can also be
 system or package environments given as e.g. ".GlobalEnv" or "R_GlobalEnv" or
 "baseenv()" or "package:base" or "package:stats", etc.}
 
-\item{envir}{environment where the objects to convert exist (considering the
-object names are given with their full path to the object). This information is not
-used when the object is a system or package environment.}
+\item{envir}{environment where the objects exist (considering the
+object names are given with their full path to the object), or \code{NULL}
+if they exist in the global environment.}
 }
 \value{
 An array containing the memory address of the objects given in \code{obj_names}
@@ -25,4 +25,3 @@ with \code{eval()}.
 Get the object addresses given their object names
 }
 \keyword{internal}
-

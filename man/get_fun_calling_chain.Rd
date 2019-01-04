@@ -45,4 +45,3 @@ if \code{n < 0} or if \code{n} is larger than the function calling chain length,
 Return a data frame with the stack or chain of function calls, or optionally the information on one
 particular function in this chain.
 }
-

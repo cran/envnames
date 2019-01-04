@@ -94,7 +94,7 @@
 #' environment_name(env1)                   		# "env1"
 #' 
 #' # Retrieve the name of an environment given as a memory address
-#' env1_address = get_obj_address(env1)
+#' env1_address = get_obj_address(globalenv()$env1)
 #' environment_name(env1_address)           		# "env1"
 #' 
 #' # Create a copy of the above environment
@@ -113,18 +113,6 @@
 #' with(env1, f <- function() { cat("We are inside function", environment_name()) })  
 #'     ## "We are inside function env1$f"
 environment_name <- function(env=parent.frame(), envir=NULL, envmap=NULL, matchname=FALSE, ignore=NULL, include_functions=FALSE) {
-# todo:
-# 1) [DONE-2016/08/13] (2016/03/30) Add the functionality of receiving a memory address in the env parameter and retrieving
-#    the environment name associated to the address (of course if the associated variable exists and is
-#    an environment!). This would be useful because some functions in R return the memory address of
-#    the environment (for instance when retrieving the environment where a function is defined, whenever
-#    the function is defined within a user-defined environment (as in with(env1, f <- function(x) { })))
-# 	 or when running e.g. options() we get a list of defined functions with the address of 
-# 	 the environment where they are defined at the end of the function definition and we may want to know
-#		 in which environment (name) the function is defined.
-#    UPDATE: (2016/03/30) note that the returned value of e.g. environment(env1$f) in the example just given
-#		 correctly returns the environment 'env1' (i.e. environment_name(environment(env1$f)) returns "env1")  
-
   # Output variable
   env_names = NULL
 
@@ -155,7 +143,7 @@ environment_name <- function(env=parent.frame(), envir=NULL, envmap=NULL, matchn
 			# NOTE that we don't simply call address() to get the memory address of 'env' because:
 			# - 'env' can be given as a string (i.e. a string containing the environment name)
 			# - even if 'env' is given as an environment object, it could exist in different environments
-			# and we would like to retrieve ALL of them. This is also the reason why I am calling the variable
+			# and we would like to retrieve ALL of them. This is also the reason why we are calling the variable
 			# where the returned value is stored as a plural name ("addresses" instead of "address").
 			env_addresses = get_obj_address(env, envir=envir, envmap=envmap, n=1, include_functions=TRUE)
 
@@ -180,7 +168,7 @@ environment_name <- function(env=parent.frame(), envir=NULL, envmap=NULL, matchn
 				env_name = get_obj_name(env, n=1, silent=TRUE)
 
 				indfound = which(envmap[,"address"] %in% env_addresses & envmap[,"name"] == env_name)
-			}			
+			}
 		} else {
 			# 'env' is given as a memory address
 			# => search for this memory address in the envmap table

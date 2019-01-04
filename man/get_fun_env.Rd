@@ -18,8 +18,9 @@ When the input parameter is a memory address, the execution environment of the f
 whose memory address (of the execution environment) equals the given memory address.
 
 When the input parameter is a function name, a list of ALL the execution environments belonging
-to a function whose name coincides with the given name. Note that these may be many environments
-as the same function may be called several times in the function calling chain.
+to a function whose name coincides with the given name (including any given path).
+Note that these may be many environments as the same function may be called several times in the
+function calling chain.
 }
 \description{
 Return the execution environment of a function by going over the execution environments of all functions
@@ -33,7 +34,7 @@ is empty and the function returns \code{NULL}.
 # Define the function that is called to show the behaviour of get_fun_env()
 h <- function(x) {
   # Get the value of parameter 'x' in the execution environment of function 'env1$g'
-  # If function 'env1$g' is not found, 'x' is evaluated in the current environment of function
+  # If function 'env1$g' is not found, 'x' is evaluated in the current environment or function
   xval = evalq(x, get_fun_env("env1$g")[[1]])
   return(xval)
 }
@@ -55,4 +56,3 @@ get_fun_env("env1$g")  # NULL, even if function 'g' exists,
                        # but we are not calling get_fun_env() from a function
 
 }
-

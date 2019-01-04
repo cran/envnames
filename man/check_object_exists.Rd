@@ -9,7 +9,7 @@ check_object_exists(obj, envir = globalenv())
 \arguments{
 \item{obj}{object to check. It can be given as a symbol or as a string.}
 
-\item{envir}{environment where its existence is checked.}
+\item{envir}{environment where the existence of \code{object} is checked.}
 }
 \value{
 A list containing three elements:
@@ -32,4 +32,3 @@ If the object is not found in the \code{envir} environment it is searched in any
 of \code{envir}.
 }
 \keyword{internal}
-

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_fun_calling.r
 \name{get_fun_calling}
 \alias{get_fun_calling}
-\title{Return the name of a calling function and its environment}
+\title{Return the name of a calling function with its context or path}
 \usage{
 get_fun_calling(n = 1, showParameters = FALSE)
 }
@@ -44,4 +44,6 @@ env1$g()
 env2$h()
 env2$env21$hh()
 }
-
+\seealso{
+\link{get_fun_name} to retrieve *just* the name of the function, without its context (e.g. \code{"f"}).
+}

@@ -20,4 +20,3 @@ The result of this function is different from is.character(x) since this functio
 for an array of character values!
 }
 \keyword{internal}
-

@@ -107,7 +107,7 @@ env1 <- new.env()
 environment_name(env1)                   		# "env1"
 
 # Retrieve the name of an environment given as a memory address
-env1_address = get_obj_address(env1)
+env1_address = get_obj_address(globalenv()$env1)
 environment_name(env1_address)           		# "env1"
 
 # Create a copy of the above environment
@@ -126,4 +126,3 @@ environment_name(env1$envx, matchname=TRUE)
 with(env1, f <- function() { cat("We are inside function", environment_name()) })  
     ## "We are inside function env1$f"
 }
-

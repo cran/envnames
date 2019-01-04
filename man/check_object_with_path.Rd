@@ -46,4 +46,3 @@ Optionally a check of whether the path points to a valid environment inside a gi
 is performed by calling \code{}.
 }
 \keyword{internal}
-

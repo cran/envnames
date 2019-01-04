@@ -2,41 +2,50 @@
 % Please edit documentation in R/functions.r
 \name{crawl_envs}
 \alias{crawl_envs}
-\title{Crawl environments in search of other environments}
+\title{Crawl environments in search of user environments}
 \usage{
-crawl_envs(env_names, path, env_path_list, envir = .GlobalEnv)
+crawl_envs(env_names, path, path_to_envs_found, rootenvir = NULL)
 }
 \arguments{
 \item{env_names}{array with the environment names where the search for environments is wished
 (careful: should not contain the environment *objects* but their *names*!).}
 
-\item{path}{array with environment names leading to the current set of environments listed in \code{env_names}.}
+\item{path}{array with user environment names leading to the current set of
+environments listed in \code{env_names}. Ex: \code{c("env_of_envs", "env11")} which means that the
+the environments listed in \code{env_names} exist in environment \code{env_of_envs$env11}.}
 
-\item{env_path_list}{array or list of environment names found so far including their path
-(e.g. an element of \code{env_path_list} could be \code{"env1$env2$env"}).
-The first time this function is called it should contain the empty array or the empty list.}
+\item{path_to_envs_found}{array of user environment names found so far including their path
+where the path is allowed to include ONLY user environments.
+(e.g. an element of the \code{path_to_envs_found} array could be \code{"env1$env2$env"}, but NOT
+\code{"R_GlobalEnv$env1$env2"}, because "R_GobalEnv" is the name of a system environment, NOT a
+user environment).
+The first time this function is called it should contain the empty array.}
 
-\item{envir}{environment used as starting point for the environment search process.}
+\item{rootenvir}{environment used as starting point for the user environment
+search process. If \code{NULL}, the environment is taken from the names attribute of
+the \code{env_names} parameter.}
 }
 \value{
-An array containing the path to each environment found inside the \code{envir} environment
-and its sub-environments. This array is concatenated to whatever paths are already listed in the
-\code{env_path_list} object passed to the function.
+An array containing the path to each user environment found inside the \code{rootenvir}
+environment and all the nested user environments found within each of them.
+This array is concatenated to whatever paths are already listed in the \code{path_to_envs_found}
+parameter passed to the function.
 }
 \description{
-Function that crawls a set of environments to search for environments defined within each of them
+Function that crawls a set of environments to search for user environments
+defined within each of them.
 }
 \details{
-This function crawls the environments defined in the \code{envir} environment and any environments
-within those environments until no environment has been left without visit, making up an environments tree.
-The path to each environment found is stored using the \code{$} notation as in \code{env1$env12$envx}.
+This function crawls the user environments defined in the \code{rootenvir} environment and
+any user environments within those user environments until no user environment
+has been left without visit, making up a tree of nested user environments.
+The path to each user environment found is stored using the \code{$} notation as in
+\code{env1$env12$envx}.
 
-Instead of setting the \code{envir} parameter to the root environment where the search should start,
+Instead of setting the \code{rootenvir} parameter to the root environment where the search should start,
 a similar result is obtained by setting the \code{path} variable to the environment chain leading to
-the environment that should be passed to \code{envir}, as in e.g. \code{c("env_of_envs", "env11")}.
+the environments passed in \code{env_names}, as in e.g. \code{c("env_of_envs", "env11")}.
 The difference is that such environment will appear as part of the paths to the environments passed,
 and in addition, it is assumed that such environment is an actual environment.
-environment given by the chained names passed in \code{path} is an actual environment, and
 }
 \keyword{internal}
-
