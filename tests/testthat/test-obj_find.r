@@ -357,6 +357,11 @@ test_that("T11) objects given with a full environment path involving globalenv()
 })
 
 test_that("T21) specifying include_functions=TRUE returns ALL the function environments where the object is found", {
+  # NOTE: (2020/12/05) This test is skipped on CRAN because it fails in some platforms tested by CRAN.
+  # The reason most likely has to do with the functions that are part of the calling chain in each platform,
+  # which perhaps vary depending on the other things that are being processed in their servers...(?).
+  # Ref: conversation with Brian Ripley on 05-Dec-2020"
+  skip_on_cran()
   # NOTE: This test passes only when calling obj_find() from WITHIN expect_equal() because doing so sets up a function
   # calling chain that makes the object being searched for appear in different function environments (e.g. eval())
   # ***********************************
@@ -369,27 +374,49 @@ test_that("T21) specifying include_functions=TRUE returns ALL the function envir
   # 1.- CASE WHEN THIS TEST IS RUN THROUGH THE TEST OR CHECK PACKAGE UTILITY
   # (in this case the eval() function appears in the result but NOT the withVisible() function)
   result = try({
-        expect_equal(obj_find(y, include_functions=TRUE), sort(c("eval", "R_GlobalEnv")))
-        expect_equal(obj_find(x, include_functions=TRUE), sort(c("env1", "force")))
-        # Referring an object indirecty
-        expect_equal(obj_find(alist$z, include_functions=TRUE), sort(c("env1", "force")))
-        
-        # When calling obj_find() from outside expect_equal(), the object is found in less environments
-        observed = obj_find(y, include_functions=TRUE)
-        expect_equal(observed, sort(c("eval", "R_GlobalEnv")))
+    print("Test form 1 (TEST or CHECK package):")
+
+    observed = obj_find(y, include_functions=TRUE)
+    cat("test-obj_find.R, T21) y: ", observed, "\n")
+    expect_equal(observed, sort(c("eval", "R_GlobalEnv")))
+
+    observed = obj_find(x, include_functions=TRUE)
+    cat("test-obj_find.R, T21) x: ", observed, "\n")
+    expect_equal(observed, sort(c("env1", "force")))
+
+    # Referring an object indirecty
+    observed = obj_find(alist$z, include_functions=TRUE)
+    cat("test-obj_find.R, T21) z: ", observed, "\n")
+    expect_equal(observed, sort(c("env1", "force")))
+    
+    # When calling obj_find() from outside expect_equal(), the object is found in less environments
+    observed = obj_find(y, include_functions=TRUE)
+    cat("test-obj_find.R, T21) y (outside call): ", observed, "\n")
+    expect_equal(observed, sort(c("eval", "R_GlobalEnv")))
   }, silent=TRUE)
 
   if (inherits(result, "try-error")) {
-    # 2.- CASE WHEN THIS TEST IS RUNG BY sourcING THE SCRIPT
+    # 2.- CASE WHEN THIS TEST IS RUN BY sourcING THE SCRIPT
     # (in this case either the eval() or the withVisible() functions appear in the result)
     result = try({
-      expect_equal(obj_find(y, include_functions=TRUE), sort(c("eval", "R_GlobalEnv")))
-      expect_equal(obj_find(x, include_functions=TRUE), sort(c("env1", "withVisible")))
+      print("Test form 2 (SOURCE file):")
+
+      observed = obj_find(y, include_functions=TRUE)
+      cat("test-obj_find.R, T21) y: ", observed, "\n")
+      expect_equal(observed, sort(c("eval", "R_GlobalEnv")))
+
+      observed = obj_find(x, include_functions=TRUE)
+      cat("test-obj_find.R, T21) x: ", observed, "\n")
+      expect_equal(observed, sort(c("env1", "withVisible")))
+
       # Referring an object indirecty
-      expect_equal(obj_find(alist$z, include_functions=TRUE), sort(c("env1", "withVisible")))
+      observed = obj_find(alist$z, include_functions=TRUE)
+      cat("test-obj_find.R, T21) z: ", observed, "\n")
+      expect_equal(observed, sort(c("env1", "withVisible")))
       
       # When calling obj_find() from outside expect_equal(), the object is only found in the global environment!
       observed = obj_find(y, include_functions=TRUE)
+      cat("test-obj_find.R, T21) y (outside call): ", observed, "\n")
       expect_equal(observed, c("eval", "R_GlobalEnv"))
     }, silent=TRUE)
 
@@ -397,13 +424,24 @@ test_that("T21) specifying include_functions=TRUE returns ALL the function envir
       # 3.- CASE WHEN THIS TEST IS RUN BY runNING JUST THIS test_that() CALL
       # (in this case nor the eval() nor the withVisible() functions appear in the result)
       result = try( {
-        expect_equal(obj_find(y, include_functions=TRUE), "R_GlobalEnv")
-        expect_equal(obj_find(x, include_functions=TRUE), "env1")
+        print("Test form 3 (FUNCTION run):")
+
+        observed = obj_find(y, include_functions=TRUE)
+        cat("test-obj_find.R, T21) y: ", observed, "\n")
+        expect_equal(observed, "R_GlobalEnv")
+
+        observed = obj_find(x, include_functions=TRUE)
+        cat("test-obj_find.R, T21) x: ", observed, "\n")
+        expect_equal(observed, "env1")
+
         # Referring an object indirecty
-        expect_equal(obj_find(alist$z, include_functions=TRUE), "env1")
+        observed = obj_find(alist$z, include_functions=TRUE)
+        cat("test-obj_find.R, T21) z: ", observed, "\n")
+        expect_equal(observed, "env1")
         
         # When calling obj_find() from outside expect_equal(), the object is only found in the global environment!
         observed = obj_find(y, include_functions=TRUE)
+        cat("test-obj_find.R, T21) y (outside call): ", observed, "\n")
         expect_equal(observed, "R_GlobalEnv")
       }, silent=TRUE)
 

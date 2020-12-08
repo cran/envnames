@@ -4,8 +4,13 @@
 \alias{get_obj_address}
 \title{Return the memory address of an object}
 \usage{
-get_obj_address(obj, envir = NULL, envmap = NULL, n = 0,
-  include_functions = FALSE)
+get_obj_address(
+  obj,
+  envir = NULL,
+  envmap = NULL,
+  n = 0,
+  include_functions = FALSE
+)
 }
 \arguments{
 \item{obj}{object whose memory address is requested. It can be given as a variable name or an expression.

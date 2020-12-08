@@ -47,7 +47,7 @@ with(env1,
   }
 )
 # Call env1$g()
-cat("The value of variable 'x' inside env1$g is", env1$g(3), "\\n") 
+cat("The value of variable 'x' inside env1$g is", env1$g(3), "\n") 
   ## Prints '2', because the value of x inside env1$g() is 2
   ## ('3' is the value of variable 'y' in env1$g(), not of variable 'x')
 

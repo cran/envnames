@@ -1,12 +1,12 @@
-## ----echo=FALSE----------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 #library(knitr)
 #opts_chunk$set(include=TRUE, warning=FALSE)
 
-## ----echo=FALSE----------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 library(envnames)
 rm(list=ls())
 
-## ----Motivation----------------------------------------------------------
+## ----Motivation---------------------------------------------------------------
 myenv <- new.env()
 cat("The name of the environment just defined is: ", environmentName(myenv), "(empty)\n")
 cat("Simply referencing the environment just defined yields its memory address,
@@ -14,59 +14,59 @@ cat("Simply referencing the environment just defined yields its memory address,
 cat("Using the environment_name() function of the envnames package gives
     the environment name:", environment_name(myenv))
 
-## ----DefineEnvironments--------------------------------------------------
+## ----DefineEnvironments-------------------------------------------------------
 env1 <- new.env()
 env_of_envs <- new.env()
 with(env_of_envs, env21 <- new.env())
 
-## ----GetLookupTable------------------------------------------------------
+## ----GetLookupTable-----------------------------------------------------------
 get_env_names()
 
-## ----GetLookupTableRestricted--------------------------------------------
+## ----GetLookupTableRestricted-------------------------------------------------
 get_env_names(envir=env_of_envs)
 
-## ----GetEnvironmentNames, warning=FALSE----------------------------------
+## ----GetEnvironmentNames, warning=FALSE---------------------------------------
 cat("Name of environment 'env1':\n")
 environment_name(env1)
 cat("Name of environment 'env21':\n")
 environment_name(env21)
 
-## ----GetEnvironmentNamesSpecifyingLocation, warning=FALSE----------------
+## ----GetEnvironmentNamesSpecifyingLocation, warning=FALSE---------------------
 cat("Name of environment 'env1' when we specify its location:\n")
 environment_name(env1, envir=globalenv())
 cat("Name of environment 'env21' when we specify its location:\n")
 environment_name(env21, envir=env_of_envs)
 
-## ----GetNameOfTestEnv----------------------------------------------------
+## ----GetNameOfTestEnv---------------------------------------------------------
 cat("Name of environment 'testenv':\n")
 environment_name(testenv)
 
-## ----GetNameOfNewEnvironmentThatPointsToAnExistingEnvironment------------
+## ----GetNameOfNewEnvironmentThatPointsToAnExistingEnvironment-----------------
 e_proxy <- env_of_envs$env21
 environment_name(e_proxy)
 
-## ----CallEnvironmentNameWithMatchNameTRUE1-------------------------------
+## ----CallEnvironmentNameWithMatchNameTRUE1------------------------------------
 environment_name(e_proxy, matchname=TRUE)
 
-## ----CallEnvironmentNameWithMatchNameTRUE2-------------------------------
+## ----CallEnvironmentNameWithMatchNameTRUE2------------------------------------
 env_of_envs$e_proxy <- new.env()
 environment_name(e_proxy, matchname=TRUE)
 
-## ----CallEnvironmentNameOnNonExistingEnvironment, warning=FALSE----------
+## ----CallEnvironmentNameOnNonExistingEnvironment, warning=FALSE---------------
 environment_name(non_existing_env)
 
-## ----ConvertMemoryAddressToEnvironmentName-------------------------------
+## ----ConvertMemoryAddressToEnvironmentName------------------------------------
 env1_address = get_obj_address(testenv$env1)
 environment_name(env1_address)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 testenv$env1
 
-## ----EnvironmentNameOfNonEnvironmentMemoryAddressIsNULL------------------
+## ----EnvironmentNameOfNonEnvironmentMemoryAddressIsNULL-----------------------
 x = 2
 environment_name(get_obj_address(x))
 
-## ----GetExecutionEnvironmentName1----------------------------------------
+## ----GetExecutionEnvironmentName1---------------------------------------------
 with(env_of_envs$env21, {
   f <- function() {
     cat("1) We are inside function:", environment_name(), "\n")
@@ -85,7 +85,7 @@ cat("\n...and when we call f() from inside function g(),
     we get the output that follows:\n")
 env_of_envs$env21$g()
 
-## ----GetExecutionEnvironmentName2----------------------------------------
+## ----GetExecutionEnvironmentName2---------------------------------------------
 with(env_of_envs$env21, {
   f <- function() {
     cat("1) We are inside function", environment_name(), "\n")
@@ -98,7 +98,7 @@ with(env_of_envs$env21, {
 )
 env_of_envs$env21$h()
 
-## ----DefineObjectsInEnvironments-----------------------------------------
+## ----DefineObjectsInEnvironments----------------------------------------------
 x <- 5
 env1$x <- 3
 with(env_of_envs, env21$y <- 5)
@@ -106,7 +106,7 @@ with(env1, {
   vars_as_string <- c("x", "y", "z")
 })
 
-## ----LookForObjects1-----------------------------------------------------
+## ----LookForObjects1----------------------------------------------------------
 environments_where_obj_x_is_found = obj_find(x)
 cat("Object 'x' found
 in the following environments:"); print(environments_where_obj_x_is_found)
@@ -114,12 +114,12 @@ environments_where_obj_y_is_found = obj_find(y)
 cat("Object 'y' found
 in the following environments:"); print(environments_where_obj_y_is_found)
 
-## ----LookForObjects2-----------------------------------------------------
+## ----LookForObjects2----------------------------------------------------------
 environments_where_obj_is_found = obj_find(vars_as_string)
 cat("Object 'vars_as_string' found
 in the following environments:"); print(environments_where_obj_is_found)
 
-## ----LookForObjectsWhoseNamesAreGivenInArray-----------------------------
+## ----LookForObjectsWhoseNamesAreGivenInArray----------------------------------
 environments_where_obj_1_is_found = obj_find(env1$vars_as_string[1])
   ## Here we are looking for the object 'x'
 cat(paste("Object '", env1$vars_as_string[1], "' found
@@ -133,34 +133,34 @@ environments_where_obj_3_is_found = obj_find(env1$vars_as_string[3])
 cat(paste("Object '", env1$vars_as_string[3], "' found
 in the following environments:")); print(environments_where_obj_3_is_found)
 
-## ----LookForObjectsUsingSAPPLY-------------------------------------------
+## ----LookForObjectsUsingSAPPLY------------------------------------------------
 environments_where_objs_are_found = with(env1, sapply(vars_as_string, obj_find) )
 cat("The objects defined in the 'env1$vars_as_string' array are found
     in the following environments:\n");
 print(environments_where_objs_are_found)
 
-## ----LookForObjectsUsingSAPPLYNoGlobalSearch-----------------------------
+## ----LookForObjectsUsingSAPPLYNoGlobalSearch----------------------------------
 environments_where_objs_are_found = with(env1,
                       sapply(vars_as_string, obj_find, globalsearch=FALSE, envir=env1) )
 cat("The objects defined in the 'env1$vars_as_string' array are found
     in the following environments (no globalsearch):\n");
 print(environments_where_objs_are_found)
 
-## ----LookForObjectAsASymbol----------------------------------------------
+## ----LookForObjectAsASymbol---------------------------------------------------
 environments_where_obj_x_is_found = obj_find(as.name("x"))
 cat("Object 'x' found in the following environments:\n")
 print(environments_where_obj_x_is_found)
 
-## ----LookForObjectsDefinedInPackages-------------------------------------
+## ----LookForObjectsDefinedInPackages------------------------------------------
 environments_where_obj_is_found = obj_find(aov)
 cat("Object 'aov' found in the following environments:\n")
 print(environments_where_obj_is_found)
 
-## ----DefineTwoEnvironments-----------------------------------------------
+## ----DefineTwoEnvironments----------------------------------------------------
 env11 <- new.env()
 env12 <- new.env()
 
-## ----DefineFunctionH-----------------------------------------------------
+## ----DefineFunctionH----------------------------------------------------------
 with(globalenv(), 
 h <- function(x, silent=TRUE) {
   fun_calling_chain = get_fun_calling_chain(silent=silent)
@@ -174,7 +174,7 @@ h <- function(x, silent=TRUE) {
 }
 )
 
-## ----DefineTwoFunctionsFInSeparateEnvironments---------------------------
+## ----DefineTwoFunctionsFInSeparateEnvironments--------------------------------
 with(env11,
   f <- function(x, silent=TRUE) {
     fun_calling_chain = get_fun_calling_chain()
@@ -189,17 +189,17 @@ with(env12,
   }
 )
 
-## ----RunFunctionF1, echo=FALSE-------------------------------------------
+## ----RunFunctionF1, echo=FALSE------------------------------------------------
 silent = FALSE
 x = 0
 cat("\nWhen h(x) is called by env11$f(x=", x, ") the output is: ", env11$f(x, silent=silent), "\n", sep="")
 
-## ----RunFunctionF2, echo=FALSE-------------------------------------------
+## ----RunFunctionF2, echo=FALSE------------------------------------------------
 silent = FALSE
 x = 0
 cat("\nWhen h(x) is called by env12$f(x=", x, ") the output is: ", env12$f(x, silent=silent), "\n", sep="")
 
-## ----GetFunEnv-----------------------------------------------------------
+## ----GetFunEnv----------------------------------------------------------------
 h <- function(x) {
   # Get the value of parameter 'x' in the execution environment of function 'env1$g'
   # The returned value is a list because there may exist different instances of the
@@ -218,12 +218,12 @@ with(env1,
 )
 env1$g() 
 
-## ----GetFunEnvOutside----------------------------------------------------
+## ----GetFunEnvOutside---------------------------------------------------------
 cat("The execution environment of a function that is not in the calling chain is:\n")
 print(get_fun_env("env1$g"))
 
 
-## ----GetFunEnvCombinedExample--------------------------------------------
+## ----GetFunEnvCombinedExample-------------------------------------------------
 h <- function(x) {
   parent_function_name = get_fun_calling(n=1)
   cat("Using get_fun_calling() and environment_name() functions:
@@ -247,7 +247,7 @@ with(env1,
 )
 env1$g() 
 
-## ----GetObjNameExampleDefinitions----------------------------------------
+## ----GetObjNameExampleDefinitions---------------------------------------------
 getObjNameAndCompareWithSubstitute <- function(y, eval=FALSE) {
   parent_generation = 2
   get_obj_name_result = get_obj_name(y, n=parent_generation, eval=eval)
@@ -290,17 +290,17 @@ callGetObjNameAndCompareWithSubstitute <- function(x, eval=FALSE) {
   getObjNameAndCompareWithSubstitute(x, eval=eval)
 }
 
-## ----GetObjNameExampleCall1----------------------------------------------
+## ----GetObjNameExampleCall1---------------------------------------------------
 y <- -9   # Global variable with the same name as the parameter of testing function
 z <- 3
 callGetObjNameAndCompareWithSubstitute(z)
 
-## ----GetObjNameExampleCall2----------------------------------------------
+## ----GetObjNameExampleCall2---------------------------------------------------
 y <- -9   # Global variable with the same name as the parameter of testing function
 z <- 3
 callGetObjNameAndCompareWithSubstitute(z, eval=TRUE)
 
-## ----RetrieveParameterPath-----------------------------------------------
+## ----RetrieveParameterPath----------------------------------------------------
 f1 <- function(x) {
   cat("f1(x) is calling f2(y=x)...\n")
   f2(x)
@@ -318,7 +318,7 @@ f3 <- function(z) {
 w = 1.3
 f1(w)
 
-## ----GetObjValueExampleDefinitions---------------------------------------
+## ----GetObjValueExampleDefinitions--------------------------------------------
 getObjValueAndCompareWithEval <- function(y) {
   parent_generation = 2
   get_obj_value_result = get_obj_value(y, n=parent_generation)
@@ -334,39 +334,39 @@ getObjValueAndCompareWithEval <- function(y) {
 
 callGetObjValueAndCompareWithEval <- function(x) { getObjValueAndCompareWithEval(x) }
 
-## ----GetObjValueExampleCall----------------------------------------------
+## ----GetObjValueExampleCall---------------------------------------------------
 y <- -9   # Global variable with the same name as the parameter of testing function
 z <- 3
 callGetObjValueAndCompareWithEval(z)
 
-## ----GetObjectAddress1---------------------------------------------------
+## ----GetObjectAddress1--------------------------------------------------------
 obj_address1 = get_obj_address(x)
 cat("Output of 'get_obj_address(x)':\n"); print(obj_address1)
 obj_address2 = with(env1, get_obj_address(x))
 cat("Output of 'with(env1, get_obj_address(x))':\n"); print(obj_address2)
 
-## ----GetObjectAddress2---------------------------------------------------
+## ----GetObjectAddress2--------------------------------------------------------
 get_obj_address(env1$x)
 get_obj_address(x, envir=env1)
 with(env1, get_obj_address(x, envir=env1))
 
-## ----GetNonExistentObjectAddress-----------------------------------------
+## ----GetNonExistentObjectAddress----------------------------------------------
 vars = c("x", "y", "nonexistent")
 get_obj_address(vars[1], envir=env1)
 sapply(vars, get_obj_address)
 
-## ----CheckMemoryAddressIsCorrect-----------------------------------------
+## ----CheckMemoryAddressIsCorrect----------------------------------------------
 address(env1$x)
 address(e_proxy$y)
 
-## ----MemoryAddressOfNULL-------------------------------------------------
+## ----MemoryAddressOfNULL------------------------------------------------------
 address(env1$nonexistent)
 address(NULL)
 
-## ----MemoryAddressOfNonExistentIsNULL------------------------------------
+## ----MemoryAddressOfNonExistentIsNULL-----------------------------------------
 get_obj_address(env1$nonexistent)
 
-## ----SystemInfo, echo=FALSE----------------------------------------------
+## ----SystemInfo, echo=FALSE---------------------------------------------------
 data.frame(SystemInfo=Sys.info()[c("sysname", "release", "version", "machine")])
 version
 

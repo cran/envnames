@@ -122,15 +122,15 @@ f(z)           # Returns a list where both elements are equal to "3"
 # general... get_obj_name() should be used when referring to a couple of specific
 # parameters.
 f <- function(x, y, ...) {
-  cat("Arguments received by the function (using get_obj_name()) (explicit listing):\\n")
-  cat(get_obj_name(x), ":", x, "\\n")
-  cat(get_obj_name(y), ":", y, "\\n")
-  cat("Arguments received by the function (using as.list(environment())) (automatic listing):\\n")
+  cat("Arguments received by the function (using get_obj_name()) (explicit listing):\n")
+  cat(get_obj_name(x), ":", x, "\n")
+  cat(get_obj_name(y), ":", y, "\n")
+  cat("Arguments received by the function (using as.list(environment())) (automatic listing):\n")
   paramsList = as.list(environment())
   paramsNames = names(paramsList)
   sapply(paramsNames, get_obj_name)
   for (p in paramsNames) {
-    cat(p, ":", paramsList[[p]], "\\n")
+    cat(p, ":", paramsList[[p]], "\n")
   }
 }
 z = 5

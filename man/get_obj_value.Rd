@@ -72,11 +72,11 @@ For instance we should use \code{with(env1, get_obj_value("z"))} and
 # Example of using get_obj_value() from within a function
 # The value returned by get_obj_value() is compared to the values returned by eval() and evalq()
 compareResultsOfDiferentEvaluations <- function(x) {
-  cat("Looking at the path of variables leading to parameter 'x':\\n")
+  cat("Looking at the path of variables leading to parameter 'x':\n")
   xval = get_obj_value(x, n=1, silent=FALSE)
-  cat("Value of 'x' at parent generation 1 using get_obj_value():", xval, "\\n")
-  cat("Value of 'x' at parent generation 1 using eval():", eval(x, parent.frame(1)), "\\n")
-  cat("Value of 'x' at parent generation 1 using evalq():", evalq(x, parent.frame(1)), "\\n")
+  cat("Value of 'x' at parent generation 1 using get_obj_value():", xval, "\n")
+  cat("Value of 'x' at parent generation 1 using eval():", eval(x, parent.frame(1)), "\n")
+  cat("Value of 'x' at parent generation 1 using evalq():", evalq(x, parent.frame(1)), "\n")
 }
 g <- function(y) {
   x = 2

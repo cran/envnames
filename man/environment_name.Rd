@@ -5,8 +5,14 @@
 \alias{get_env_name}
 \title{Retrieve the name of an environment}
 \usage{
-environment_name(env = parent.frame(), envir = NULL, envmap = NULL,
-  matchname = FALSE, ignore = NULL, include_functions = FALSE)
+environment_name(
+  env = parent.frame(),
+  envir = NULL,
+  envmap = NULL,
+  matchname = FALSE,
+  ignore = NULL,
+  include_functions = FALSE
+)
 }
 \arguments{
 \item{env}{environment whose name is of interest.

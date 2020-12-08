@@ -4,8 +4,16 @@
 \alias{obj_find}
 \title{Find an object in the workspace including user-defined environments}
 \usage{
-obj_find(obj, envir = NULL, envmap = NULL, globalsearch = TRUE, n = 0,
-  return_address = FALSE, include_functions = FALSE, silent = TRUE)
+obj_find(
+  obj,
+  envir = NULL,
+  envmap = NULL,
+  globalsearch = TRUE,
+  n = 0,
+  return_address = FALSE,
+  include_functions = FALSE,
+  silent = TRUE
+)
 }
 \arguments{
 \item{obj}{object to be searched given as the object itself or as a character string. If given as an object,

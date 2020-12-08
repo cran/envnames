@@ -27,11 +27,11 @@ with(env2, env21 <- new.env())
 
 # Function that shows the names of calling functions in the chain and their environments
 f <- function(x) {
- cat("Now in function:", get_fun_calling(0), "\\n")
- cat("\\tName of the calling function:", get_fun_calling(), "\\n")
- cat("\\tName of the calling function two levels up:", get_fun_calling(2), "\\n")
- cat("\\tName of the calling function three levels up:", get_fun_calling(3), "\\n")
- cat("\\tName of the calling function four levels up:", get_fun_calling(4), "\\n")
+ cat("Now in function:", get_fun_calling(0), "\n")
+ cat("\tName of the calling function:", get_fun_calling(), "\n")
+ cat("\tName of the calling function two levels up:", get_fun_calling(2), "\n")
+ cat("\tName of the calling function three levels up:", get_fun_calling(3), "\n")
+ cat("\tName of the calling function four levels up:", get_fun_calling(4), "\n")
 }
 
 # Prepare a calling chain  
